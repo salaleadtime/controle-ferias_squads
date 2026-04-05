@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Férias — Expresso-1 & Guardiões</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #F0F4F8; color: #222; font-size: 13px; }
+  .container { max-width: 1400px; margin: 24px auto; padding: 0 16px 40px; }
+
+  /* HEADER */
+  .page-header {
+    background: linear-gradient(135deg, #1A3C5E 0%, #1E6B3A 100%);
+    border-radius: 12px; padding: 20px 28px; margin-bottom: 24px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  }
+  .page-header h1 { color: #fff; font-size: 20px; font-weight: 700; }
+  .page-header .meta { color: #cde; font-size: 11px; margin-top: 4px; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 6px; }
+  .tab-btn { padding: 9px 22px; border: none; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: 700; font-size: 13px; transition: all .2s; }
+  .tab-btn.expresso  { background: #d0e4f5; color: #1A3C5E; }
+  .tab-btn.guardioes { background: #c8ecd8; color: #1E6B3A; }
+  .tab-btn.expresso.active  { background: #1A3C5E; color: #fff; }
+  .tab-btn.guardioes.active { background: #1E6B3A; color: #fff; }
+
+  /* PANEL */
+  .panel { display: none; background: #fff; border-radius: 0 8px 8px 8px; box-shadow: 0 2px 12px rgba(0,0,0,.08); overflow: hidden; }
+  .panel.active { display: block; }
+
+  .panel-header { padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .panel-header.expresso  { background: #1A3C5E; }
+  .panel-header.guardioes { background: #1E6B3A; }
+  .panel-header h2 { color: #fff; font-size: 15px; }
+  .header-actions { display: flex; gap: 8px; }
+
+  /* BOTÕES */
+  .btn { padding: 7px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 12px; transition: all .2s; }
+  .btn-add    { background: #EAF2FB; color: #1A3C5E; }
+  .btn-add.g  { background: #EAF5EE; color: #1E6B3A; }
+  .btn-export { background: #217346; color: #fff; }
+  .btn:hover  { filter: brightness(.9); }
+
+  /* RESUMO */
+  .summary { display: flex; gap: 10px; padding: 12px 20px; flex-wrap: wrap; border-bottom: 1px solid #eee; }
+  .summary-card { flex: 1; min-width: 100px; border-radius: 8px; padding: 8px 14px; text-align: center; }
+  .summary-card .num { font-size: 22px; font-weight: 800; }
+  .summary-card .lbl { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+  .sc-ferias    { background: #D6EAF8; color: #1A5276; }
+  .sc-proximas  { background: #E8DAEF; color: #6C3483; }
+  .sc-aprovado  { background: #C6EFCE; color: #276221; }
+  .sc-pendente  { background: #FFEB9C; color: #7D6608; }
+
+  /* TABELA */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    padding: 10px 10px; text-align: center; font-size: 11px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: .4px; white-space: nowrap;
+  }
+  .expresso  thead th { background: #1A3C5E; color: #fff; }
+  .guardioes thead th { background: #1E6B3A; color: #fff; }
+
+  tbody tr:nth-child(even) { background: #F7FBFF; }
+  .guardioes tbody tr:nth-child(even) { background: #F3FBF6; }
+  tbody tr:hover { background: #e8f4ff; }
+  .guardioes tbody tr:hover { background: #e2f5ea; }
+  td { padding: 8px 8px; border-bottom: 1px solid #E8EEF4; vertical-align: middle; }
+
+  /* INPUTS */
+  input[type="text"], input[type="date"], input[type="number"], select {
+    border: 1px solid #CBD5E0; border-radius: 5px; padding: 5px 8px;
+    font-size: 12px; background: #fff; color: #222;
+  }
+  input[type="date"]   { width: 130px; }
+  input[type="number"] { width: 60px; text-align: center; }
+  input:focus, select:focus { outline: 2px solid #90B4D4; }
+
+  /* Colunas com largura definida */
+  .col-nome  { min-width: 190px; }
+  .col-nome input { width: 100%; min-width: 180px; }
+  .col-cargo input { width: 110px; }
+  .col-sub { min-width: 260px; }
+
+  /* SUBSTITUTO — sempre visível lado a lado */
+  .sub-wrap { display: flex; gap: 6px; align-items: center; }
+  .sub-sel  { flex: 0 0 58px; }
+  .sub-nome { flex: 1; }
+  .sub-nome input { width: 100%; min-width: 140px; }
+
+  /* STATUS BADGE */
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .badge-em-ferias       { background: #D6EAF8; color: #1A5276; }
+  .badge-ferias-proximas { background: #E8DAEF; color: #6C3483; }
+  .badge-aprovado        { background: #C6EFCE; color: #276221; }
+  .badge-pendente        { background: #FFEB9C; color: #7D6608; }
+  .badge-negado          { background: #FFC7CE; color: #9C0006; }
+  .badge-encerrado       { background: #EAECEE; color: #555; }
+  .badge-em-analise      { background: #D9EDF7; color: #1A5276; }
+
+  .status-wrap { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+  .status-wrap select { font-size: 11px; padding: 3px 6px; }
+
+  /* SALDO */
+  .saldo-ok   { font-weight: 700; color: #276221; }
+  .saldo-warn { font-weight: 700; color: #9C0006; background: #FFD7D7; border-radius: 4px; padding: 1px 6px; }
+
+  /* AUTO TAG */
+  .auto-tag { font-size: 10px; color: #999; font-style: italic; }
+
+  /* RETORNO */
+  .retorno-val { font-weight: 600; color: #6C3483; }
+
+  /* DEL */
+  .btn-del { background: none; border: none; cursor: pointer; color: #E53E3E; font-size: 16px; padding: 2px 6px; border-radius: 4px; }
+  .btn-del:hover { background: #FED7D7; }
+
+  /* LEGENDA */
+  .legend { padding: 10px 20px 14px; display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; border-top: 1px solid #eee; color: #555; }
+  .legend span::before { content: "●"; margin-right: 4px; }
+  .leg-ferias::before   { color: #1A5276; }
+  .leg-proximas::before { color: #6C3483; }
+  .leg-ok::before       { color: #276221; }
+  .leg-warn::before     { color: #9C0006; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="page-header">
+    <div>
+      <h1>🗓️ Controle de Férias — Squads</h1>
+      <div class="meta" id="updated-date"></div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn expresso active" onclick="switchTab('expresso')">🚀 Expresso-1</button>
+    <button class="tab-btn guardioes"       onclick="switchTab('guardioes')">🛡️ Guardiões</button>
+  </div>
+
+  <!-- EXPRESSO-1 -->
+  <div id="panel-expresso" class="panel expresso active">
+    <div class="panel-header expresso">
+      <h2>🚀 Squad Expresso-1</h2>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span id="sync-expresso" style="font-size:11px;color:#aed"></span>
+        <div class="header-actions">
+          <button class="btn" style="background:#4A90D9;color:#fff" onclick="loadFromSheets('expresso')" title="Atualizar dados">🔄 Atualizar</button>
+          <button class="btn" style="background:#E67E22;color:#fff" onclick="saveToSheets('expresso')">💾 Salvar</button>
+          <button class="btn btn-add"    onclick="addRow('expresso')">+ Adicionar</button>
+          <button class="btn btn-export" onclick="exportExcel('expresso')">⬇ Exportar Excel</button>
+        </div>
+      </div>
+    </div>
+    <div class="summary" id="summary-expresso"></div>
+    <div class="table-wrap">
+      <table id="table-expresso">
+        <thead><tr>
+          <th class="col-nome">Nome</th>
+          <th>Empresa</th>
+          <th>Cargo</th>
+          <th>Saldo (dias)</th>
+          <th>Início Férias</th>
+          <th>Fim Férias</th>
+          <th>Dias Solicitados</th>
+          <th>Saldo Restante</th>
+          <th>Previsão Retorno</th>
+          <th class="col-sub">Substituto / Nome</th>
+          <th>Status</th>
+          <th>Obs</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="tbody-expresso"></tbody>
+      </table>
+    </div>
+    <div class="legend">
+      <span class="leg-ferias">Em férias agora</span>
+      <span class="leg-proximas">Férias em até 7 dias</span>
+      <span class="leg-ok">Saldo ≥ 6 dias</span>
+      <span class="leg-warn">Saldo &lt; 6 dias</span>
+    </div>
+  </div>
+
+  <!-- GUARDIÕES -->
+  <div id="panel-guardioes" class="panel guardioes">
+    <div class="panel-header guardioes">
+      <h2>🛡️ Squad Guardiões</h2>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span id="sync-guardioes" style="font-size:11px;color:#aed"></span>
+        <div class="header-actions">
+          <button class="btn" style="background:#4A90D9;color:#fff" onclick="loadFromSheets('guardioes')" title="Atualizar dados">🔄 Atualizar</button>
+          <button class="btn" style="background:#E67E22;color:#fff" onclick="saveToSheets('guardioes')">💾 Salvar</button>
+          <button class="btn btn-add g"  onclick="addRow('guardioes')">+ Adicionar</button>
+          <button class="btn btn-export" onclick="exportExcel('guardioes')">⬇ Exportar Excel</button>
+        </div>
+      </div>
+    </div>
+    <div class="summary" id="summary-guardioes"></div>
+    <div class="table-wrap">
+      <table id="table-guardioes">
+        <thead><tr>
+          <th class="col-nome">Nome</th>
+          <th>Empresa</th>
+          <th>Cargo</th>
+          <th>Saldo (dias)</th>
+          <th>Início Férias</th>
+          <th>Fim Férias</th>
+          <th>Dias Solicitados</th>
+          <th>Saldo Restante</th>
+          <th>Previsão Retorno</th>
+          <th class="col-sub">Substituto / Nome</th>
+          <th>Status</th>
+          <th>Obs</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="tbody-guardioes"></tbody>
+      </table>
+    </div>
+    <div class="legend">
+      <span class="leg-ferias">Em férias agora</span>
+      <span class="leg-proximas">Férias em até 7 dias</span>
+      <span class="leg-ok">Saldo ≥ 6 dias</span>
+      <span class="leg-warn">Saldo &lt; 6 dias</span>
+    </div>
+  </div>
+
+</div>
+<script>
+// ── Configuração Google Sheets ───────────────────────────────────────────────
+const API_URL = "https://script.google.com/macros/s/AKfycbwRSo3x7o6RbDH8C1rgXKkCxfmbNvyrwBsdXRJ5HvqXPq4KNSUFv5_K3A_OpClIufk/exec";
+
+const initialData = {
+  expresso: [
+    { nome:"Felipe Luna", cargo:"Dev", empresa:"GFT", saldo:30, inicio:"", fim:"", subSim:"Não", subNome:"", obs:"", statusManual:"Pendente" }
+  ],
+  guardioes: [
+    { nome:"Paulo Sergio", cargo:"Dev", empresa:"GFT", saldo:30, inicio:"", fim:"", subSim:"Não", subNome:"", obs:"", statusManual:"Pendente" }
+  ]
+};
+let data = JSON.parse(JSON.stringify(initialData));
+
+// ── Status de sincronização ──────────────────────────────────────────────────
+function setSyncStatus(squad, msg, cor) {
+  const el = document.getElementById(`sync-${squad}`);
+  if (el) { el.textContent = msg; el.style.color = cor; }
+}
+
+// ── Normaliza data para formato YYYY-MM-DD ────────────────────────────────────
+function normalizeDate(val) {
+  if (!val || val === "" || val === "0" || val === "false" || val === "undefined") return "";
+  const s = String(val).trim();
+  if (!s || s === "Invalid Date") return "";
+  // ISO datetime com T: "2026-06-08T03:00:00" ou "2026-06-08T03:00:00.000Z"
+  if (/^\d{4}-\d{2}-\d{2}T/.test(s)) return s.substring(0, 10);
+  // Já YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  // DD/MM/YYYY
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) {
+    const [d, m, y] = s.split("/");
+    return `${y}-${m}-${d}`;
+  }
+  // Tenta parse genérico
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,"0");
+    const day = String(d.getDate()).padStart(2,"0");
+    return `${y}-${m}-${day}`;
+  }
+  return "";
+}
+
+// ── Carregar dados do Google Sheets ─────────────────────────────────────────
+async function loadFromSheets(squad, silent=false) {
+  if (!silent) setSyncStatus(squad, "⏳ Carregando...", "#888");
+  try {
+    const res  = await fetch(`${API_URL}?squad=${squad}&t=${Date.now()}`);
+    const json = await res.json();
+    if (json.status === "ok" && json.data.length > 0) {
+      data[squad] = json.data
+        .filter(r => r.nome && r.nome.trim() !== "") // ignora linhas vazias
+        .map(r => ({
+          nome:         r.nome         || "",
+          cargo:        r.cargo        || "",
+          empresa:      r.empresa      || "",
+          saldo:        +r.saldo       || 30,
+          inicio:       normalizeDate(r.inicio),
+          fim:          normalizeDate(r.fim),
+          subSim:       r.subSim       || "Não",
+          subNome:      r.subNome      || "",
+          obs:          r.obs          || "",
+          statusManual: r.statusManual || "Pendente"
+        }));
+    }
+    setSyncStatus(squad, "✅ " + new Date().toLocaleTimeString("pt-BR", {hour:"2-digit",minute:"2-digit"}), "#276221");
+    render(squad);
+  } catch(e) {
+    if (!silent) setSyncStatus(squad, "⚠️ Erro ao carregar", "#9C0006");
+  }
+}
+
+// ── Salvar dados no Google Sheets ────────────────────────────────────────────
+async function saveToSheets(squad) {
+  setSyncStatus(squad, "💾 Salvando...", "#7D6608");
+  try {
+    await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ squad, data: data[squad] })
+    });
+    setSyncStatus(squad, "✅ Sincronizado", "#276221");
+  } catch(e) {
+    setSyncStatus(squad, "⚠️ Erro ao salvar", "#9C0006");
+  }
+}
+
+// ── Utilitários ──────────────────────────────────────────────────────────────
+
+// Dias CORRIDOS (férias CLT = dias corridos, incluindo fins de semana)
+function workdays(s, e) {
+  if (!s || !e) return "";
+  const ini = new Date(s + "T00:00:00");
+  const fim = new Date(e + "T00:00:00");
+  if (isNaN(ini) || isNaN(fim) || ini > fim) return "";
+  return Math.round((fim - ini) / 86400000) + 1; // +1 inclui o dia inicial
+}
+
+function nextWorkday(endStr) {
+  if (!endStr) return "";
+  const d = new Date(endStr + "T00:00:00");
+  if (isNaN(d)) return "";
+  d.setDate(d.getDate()+1);
+  while (d.getDay()===0 || d.getDay()===6) d.setDate(d.getDate()+1);
+  return d.toLocaleDateString("pt-BR");
+}
+
+// Retorna objeto Date do próximo dia útil (para ExcelJS)
+function nextWorkdayDate(endStr) {
+  if (!endStr) return null;
+  const d = new Date(endStr + "T00:00:00");
+  if (isNaN(d)) return null;
+  d.setDate(d.getDate()+1);
+  while (d.getDay()===0 || d.getDay()===6) d.setDate(d.getDate()+1);
+  return d;
+}
+
+function calcStatus(r) {
+  if (!r.inicio || !r.fim) return r.statusManual;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const ini = new Date(r.inicio + "T00:00:00");
+  const fim = new Date(r.fim   + "T23:59:59");
+  const diff = Math.ceil((ini - today) / 86400000);
+  if (today >= ini && today <= fim) return "Em férias";
+  if (today > fim)  return "Encerrado";
+  if (diff <= 7)    return "Férias próximas";
+  return r.statusManual;
+}
+
+function badgeKey(status) {
+  return status.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g,"-");
+}
+
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+
+// ── Render ───────────────────────────────────────────────────────────────────
+function render(squad) {
+  const tbody = document.getElementById(`tbody-${squad}`);
+  tbody.innerHTML = "";
+
+  data[squad].forEach((row, i) => {
+    const ini = normalizeDate(row.inicio);
+    const fim = normalizeDate(row.fim);
+    // Atualiza no objeto caso venha formato errado
+    if (ini !== row.inicio) data[squad][i].inicio = ini;
+    if (fim !== row.fim)    data[squad][i].fim    = fim;
+
+    const sol = workdays(ini, fim);
+    const rest = (row.saldo !== "" && sol !== "") ? row.saldo - sol : row.saldo;
+    const saldoHtml = rest !== "" ? `<span class="${rest < 6 ? "saldo-warn" : "saldo-ok"}">${rest}</span>` : "—";
+    const retorno = nextWorkday(fim);
+    const rowForStatus = {...row, inicio: ini, fim: fim};
+    const status  = calcStatus(rowForStatus);
+    const isAuto  = ["Em férias","Férias próximas","Encerrado"].includes(status);
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="col-nome">
+        <input type="text" value="${esc(row.nome)}" placeholder="Nome completo"
+          onchange="upd('${squad}',${i},'nome',this.value)">
+      </td>
+      <td class="col-cargo">
+        <input type="text" value="${esc(row.cargo)}" placeholder="Cargo"
+          onchange="upd('${squad}',${i},'cargo',this.value)">
+      </td>
+      <td>
+        <select onchange="upd('${squad}',${i},'empresa',this.value)" style="width:100px">
+          <option value="">Selecione</option>
+          ${["Bradesco","GFT"].map(e=>`<option${e===(row.empresa||"")?" selected":""}>${e}</option>`).join("")}
+        </select>
+      </td>
+      <td style="text-align:center">
+        <input type="number" min="0" max="90" value="${row.saldo}"
+          onchange="upd('${squad}',${i},'saldo',+this.value)">
+      </td>
+      <td><input type="date" value="${ini}" onchange="upd('${squad}',${i},'inicio',this.value)"></td>
+      <td><input type="date" value="${fim}" onchange="upd('${squad}',${i},'fim',this.value)"></td>
+      <td style="text-align:center;font-weight:700">${sol !== "" ? sol : "—"}</td>
+      <td style="text-align:center">${saldoHtml}</td>
+      <td style="text-align:center">
+        ${retorno ? `<span class="retorno-val">${retorno}</span> <span class="auto-tag">auto</span>` : "—"}
+      </td>
+      <td class="col-sub">
+        <div class="sub-wrap">
+          <div class="sub-sel">
+            <select onchange="updSub('${squad}',${i},this.value)">
+              <option${row.subSim==="Não"?" selected":""}>Não</option>
+              <option${row.subSim==="Sim"?" selected":""}>Sim</option>
+            </select>
+          </div>
+          <div class="sub-nome" id="subnome-${squad}-${i}" style="${row.subSim==='Sim'?'':'display:none'}">
+            <input type="text" value="${esc(row.subNome)}" placeholder="Nome do substituto"
+              onchange="upd('${squad}',${i},'subNome',this.value)">
+          </div>
+        </div>
+      </td>
+      <td>
+        <div class="status-wrap">
+          <span class="badge badge-${badgeKey(status)}">${status}</span>
+          ${isAuto
+            ? `<span class="auto-tag">automático</span>`
+            : `<select onchange="upd('${squad}',${i},'statusManual',this.value)">
+                ${["Aprovado","Pendente","Em análise","Negado"].map(s =>
+                  `<option${s===row.statusManual?" selected":""}>${s}</option>`).join("")}
+               </select>`
+          }
+        </div>
+      </td>
+      <td><input type="text" value="${esc(row.obs)}" placeholder="..." style="width:110px"
+        onchange="upd('${squad}',${i},'obs',this.value)"></td>
+      <td><button class="btn-del" onclick="delRow('${squad}',${i})" title="Remover">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  renderSummary(squad);
+}
+
+function esc(v) { return (v||"").replace(/"/g,"&quot;"); }
+
+function renderSummary(squad) {
+  const rows = data[squad];
+  const cnt  = s => rows.filter(r => calcStatus(r) === s).length;
+  document.getElementById(`summary-${squad}`).innerHTML = `
+    <div class="summary-card sc-ferias">  <div class="num">${cnt("Em férias")}</div>      <div class="lbl">Em férias</div></div>
+    <div class="summary-card sc-proximas"><div class="num">${cnt("Férias próximas")}</div> <div class="lbl">Férias próximas</div></div>
+    <div class="summary-card sc-aprovado"><div class="num">${cnt("Aprovado")}</div>        <div class="lbl">Aprovados</div></div>
+    <div class="summary-card sc-pendente"><div class="num">${cnt("Pendente")}</div>        <div class="lbl">Pendentes</div></div>
+  `;
+}
+
+function updSub(squad, i, value) {
+  data[squad][i].subSim = value;
+  const subDiv = document.getElementById(`subnome-${squad}-${i}`);
+  if (subDiv) subDiv.style.display = value === "Sim" ? "" : "none";
+  setSyncStatus(squad, "⚠️ Alterações não salvas", "#E67E22");
+}
+
+function upd(squad, i, field, value) {
+  data[squad][i][field] = value;
+  renderSummary(squad); // só atualiza resumo, não re-renderiza toda a tabela
+  setSyncStatus(squad, "⚠️ Alterações não salvas", "#E67E22");
+}
+function addRow(squad) {
+  data[squad].push({ nome:"", cargo:"", empresa:"", saldo:30, inicio:"", fim:"", subSim:"Não", subNome:"", obs:"", statusManual:"Pendente" });
+  render(squad);
+  setSyncStatus(squad, "⚠️ Alterações não salvas", "#E67E22");
+}
+function delRow(squad, i) {
+  if (!confirm("Remover este membro?")) return;
+  data[squad].splice(i, 1);
+  render(squad);
+  setSyncStatus(squad, "⚠️ Alterações não salvas", "#E67E22");
+}
+function switchTab(squad) {
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById(`panel-${squad}`).classList.add("active");
+  document.querySelector(`.tab-btn.${squad}`).classList.add("active");
+}
+
+// ── Helpers compartilhados de estilo ────────────────────────────────────────
+const STATUS_CORES = {
+  "Em ferias":       {bg:"FFD6EAF8", ft:"FF1A5276"},
+  "Ferias proximas": {bg:"FFE8DAEF", ft:"FF6C3483"},
+  "Aprovado":        {bg:"FFC6EFCE", ft:"FF276221"},
+  "Pendente":        {bg:"FFFFEB9C", ft:"FF7D6608"},
+  "Negado":          {bg:"FFFFC7CE", ft:"FF9C0006"},
+  "Em analise":      {bg:"FFD9EDF7", ft:"FF1A5276"},
+  "Encerrado":       {bg:"FFEAECEE", ft:"FF555555"}
+};
+const normStatus = s => (s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim();
+const thinBorder = {
+  top:{style:"thin",color:{argb:"FFBFBFBF"}}, bottom:{style:"thin",color:{argb:"FFBFBFBF"}},
+  left:{style:"thin",color:{argb:"FFBFBFBF"}}, right:{style:"thin",color:{argb:"FFBFBFBF"}}
+};
+const medBorder = {
+  top:{style:"medium",color:{argb:"FF999999"}}, bottom:{style:"medium",color:{argb:"FF999999"}},
+  left:{style:"thin", color:{argb:"FFBFBFBF"}}, right:{style:"thin", color:{argb:"FFBFBFBF"}}
+};
+
+function feriasNoMes(iniStr, fimStr, ano, mes) {
+  if (!iniStr || !fimStr) return 0;
+  const ini = new Date(iniStr+"T00:00:00"), fim = new Date(fimStr+"T00:00:00");
+  const mIni = new Date(ano, mes-1, 1), mFim = new Date(ano, mes, 0);
+  const s = new Date(Math.max(ini, mIni)), e = new Date(Math.min(fim, mFim));
+  if (s > e) return 0;
+  return Math.round((e-s)/86400000)+1;
+}
+
+// ── ABA 1: Dados com fórmulas ────────────────────────────────────────────────
+function buildDataSheet(wb, squad, rows, sheetName, corPrincipal, corAlt, hoje) {
+  const ws = wb.addWorksheet(sheetName);
+  ws.views = [{showGridLines: false}];
+  ws.columns = [
+    {width:30},{width:16},{width:14},{width:14},{width:14},
+    {width:14},{width:14},{width:16},{width:10},{width:26},{width:18},{width:24}
+  ];
+
+  ws.mergeCells("A1:L1");
+  const tc = ws.getCell("A1");
+  tc.value = `CONTROLE DE FERIAS — ${sheetName}   |   Gerado em: ${hoje}`;
+  tc.font  = {bold:true, size:13, color:{argb:"FFFFFFFF"}, name:"Arial"};
+  tc.fill  = {type:"pattern", pattern:"solid", fgColor:{argb:corPrincipal}};
+  tc.alignment = {horizontal:"center", vertical:"middle"};
+  ws.getRow(1).height = 30;
+
+  const hRow = ws.addRow(["Nome","Empresa","Cargo","Saldo Total (dias)","Inicio Ferias","Fim Ferias",
+    "Dias Corridos","Saldo Restante","Previsao Retorno","Substituto","Nome Substituto","Status","Observacoes"]);
+  hRow.height = 24;
+  hRow.eachCell(cell => {
+    cell.font = {bold:true,size:10,color:{argb:"FFFFFFFF"},name:"Arial"};
+    cell.fill = {type:"pattern",pattern:"solid",fgColor:{argb:corPrincipal}};
+    cell.alignment = {horizontal:"center",vertical:"middle",wrapText:true};
+    cell.border = medBorder;
+  });
+
+  rows.forEach((r, ri) => {
+    const exRow = ri+3;
+    const bgRow = ri%2===0 ? "FFFFFFFF" : corAlt;
+    const status = calcStatus(r);
+    const sCor   = STATUS_CORES[normStatus(status)] || {bg:"FFFFEB9C",ft:"FF7D6608"};
+    const sol    = workdays(r.inicio, r.fim);
+    const rest   = (r.saldo!==""&&sol!=="") ? r.saldo-sol : "";
+    const iniD   = r.inicio ? new Date(r.inicio+"T00:00:00") : null;
+    const fimD   = r.fim    ? new Date(r.fim+"T00:00:00")    : null;
+    const retD   = nextWorkdayDate(r.fim);
+
+    const dRow = ws.addRow([
+      r.nome, r.empresa||"", r.cargo, r.saldo, iniD, fimD,
+      iniD&&fimD ? {formula:`F${exRow}-E${exRow}+1`, result:sol||0} : "",
+      iniD&&fimD ? {formula:`D${exRow}-G${exRow}`,   result:rest||""} : r.saldo,
+      fimD ? retD : "",
+      r.subSim, r.subSim==="Sim" ? r.subNome : "", status, r.obs
+    ]);
+    dRow.height = 18;
+
+    dRow.eachCell({includeEmpty:true}, (cell, cn) => {
+      let bg=bgRow, ft="FF222222", bold=false;
+      if (cn===12) { bg=sCor.bg; ft=sCor.ft; bold=true; }
+      if (cn===8&&rest!=="") { bg=rest<6?"FFFFD7D7":bgRow; ft=rest<6?"FF9C0006":"FF276221"; bold=true; }
+      if (cn===7&&sol!=="") bold=true;
+      cell.font = {size:10,name:"Arial",bold,color:{argb:ft}};
+      cell.fill = {type:"pattern",pattern:"solid",fgColor:{argb:bg}};
+      cell.alignment = {horizontal:[1,2,3,11,13].includes(cn)?"left":"center",vertical:"middle"};
+      cell.border = thinBorder;
+      if ([5,6,9].includes(cn)) cell.numFmt = "DD/MM/YYYY";
+    });
+  });
+  ws.freezePanes = "A3";
+}
+
+// ── ABA 2: Dashboard ─────────────────────────────────────────────────────────
+function buildDashboard(wb, squad, rows, sheetName, corPrincipal, corAlt, corLight, hoje) {
+  const ANO = new Date().getFullYear();
+  const MESES_PT   = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+  const MESES_FULL = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+
+  const ws = wb.addWorksheet(`Dashboard ${sheetName}`);
+  ws.views = [{showGridLines: false}];
+  ws.columns = [{width:26},...Array(12).fill({width:9}),...Array(3).fill({width:10})];
+
+  // ── TÍTULO ──
+  ws.mergeCells("A1:N1");
+  const tc = ws.getCell("A1");
+  tc.value = `DASHBOARD DE FÉRIAS — ${sheetName.toUpperCase()}  |  Ano ${ANO}`;
+  tc.font  = {bold:true,size:14,color:{argb:"FFFFFFFF"},name:"Arial"};
+  tc.fill  = {type:"pattern",pattern:"solid",fgColor:{argb:corPrincipal}};
+  tc.alignment = {horizontal:"center",vertical:"middle"};
+  ws.getRow(1).height = 34;
+
+  ws.mergeCells("A2:N2");
+  const sc = ws.getCell("A2");
+  sc.value = `Gerado em: ${hoje}`;
+  sc.font  = {size:9,color:{argb:"FF888888"},italic:true,name:"Arial"};
+  sc.alignment = {horizontal:"center"};
+  ws.getRow(2).height = 14;
+
+  // ── BLOCO 1: RESUMO POR STATUS ──
+  let row = 4;
+  ws.mergeCells(`A${row}:N${row}`);
+  let bc = ws.getCell(`A${row}`);
+  bc.value = "📊  RESUMO POR STATUS";
+  bc.font  = {bold:true,size:11,color:{argb:"FFFFFFFF"},name:"Arial"};
+  bc.fill  = {type:"pattern",pattern:"solid",fgColor:{argb:corPrincipal}};
+  bc.alignment = {horizontal:"left",vertical:"middle",indent:1};
+  ws.getRow(row).height = 22;
+  row++;
+
+  const statusOrder = ["Aprovado","Férias próximas","Em férias","Pendente","Em análise","Negado","Encerrado"];
+  const statusCount = {};
+  rows.forEach(r => { const s=calcStatus(r); statusCount[s]=(statusCount[s]||0)+1; });
+
+  let col = 1;
+  statusOrder.forEach(s => {
+    const cnt = statusCount[s]||0;
+    const cor = STATUS_CORES[normStatus(s)] || {bg:"FFEEEEEE",ft:"FF333333"};
+    const c1 = ws.getCell(row,   col);
+    const c2 = ws.getCell(row+1, col);
+    c1.value = cnt; c2.value = s;
+    [c1,c2].forEach(c => {
+      c.fill   = {type:"pattern",pattern:"solid",fgColor:{argb:cor.bg}};
+      c.border = thinBorder;
+      c.alignment = {horizontal:"center",vertical:"middle"};
+    });
+    c1.font = {bold:true,size:18,name:"Arial",color:{argb:cor.ft}};
+    c2.font = {bold:true,size:8, name:"Arial",color:{argb:cor.ft}};
+    ws.getRow(row).height   = 26;
+    ws.getRow(row+1).height = 16;
+    col++;
+  });
+  // Card total
+  const ct = ws.getCell(row,   col); ct.value = rows.length;
+  const cl = ws.getCell(row+1, col); cl.value = "Total membros";
+  [ct,cl].forEach(c => {
+    c.fill = {type:"pattern",pattern:"solid",fgColor:{argb:corPrincipal}};
+    c.font = {bold:true,size:c===ct?18:8,color:{argb:"FFFFFFFF"},name:"Arial"};
+    c.border = thinBorder; c.alignment = {horizontal:"center",vertical:"middle"};
+  });
+
+  row += 3;
+
+  // ── BLOCO 2: TIMELINE POR MÊS ──
+  ws.mergeCells(`A${row}:N${row}`);
+  bc = ws.getCell(`A${row}`);
+  bc.value = "📅  TIMELINE — DIAS DE FÉRIAS POR MÊS";
+  bc.font  = {bold:true,size:11,color:{argb:"FFFFFFFF"},name:"Arial"};
+  bc.fill  = {type:"pattern",pattern:"solid",fgColor:{argb:corPrincipal}};
+  bc.alignment = {horizontal:"left",vertical:"middle",indent:1};
+  ws.getRow(row).height = 22;
+  row++;
+
+  // Cabeçalho meses
+  let hc = ws.getCell(row, 1); hc.value = "Colaborador";
+  hc.font={bold:true,size:9,color:{argb:"FFFFFFFF"},name:"Arial"};
+  hc.fill={type:"pattern",pattern:"solid",fgColor:{argb:corPrincipal}};
+  hc.alignment={horizontal:"left",vertical:"middle"};
+  hc.border=thinBorder;
+  MESES_PT.forEach((m,mi) => {
+    const mc = ws.getCell(row, mi+2);
+    mc.value=m; mc.font={bold:true,size:9,color:{argb:"FFFFFFFF"},name:"Arial"};
+    mc.fill={type:"pattern",pattern:"solid",fgColor:{argb:corPrincipal}};
+    mc.alignment={horizontal:"center",vertical:"middle"}; mc.border=thinBorder;
+  });
+  ws.getRow(row).height = 18;
+  row++;
+
+  rows.forEach((r,ri) => {
+    const bg = ri%2===0?"FFFFFFFF":corAlt;
+    const ini = normalizeDate(r.inicio);
+    const fim = normalizeDate(r.fim);
+    const nc = ws.getCell(row,1); nc.value=r.nome;
+    nc.font={bold:true,size:9,name:"Arial"}; nc.fill={type:"pattern",pattern:"solid",fgColor:{argb:bg}};
+    nc.alignment={horizontal:"left",vertical:"middle"}; nc.border=thinBorder;
+
+    for(let mi=1;mi<=12;mi++){
+      const dias = feriasNoMes(ini,fim,ANO,mi);
+      const mc = ws.getCell(row,mi+1);
+      if(dias>0){
+        mc.value=dias;
+        mc.font={bold:true,size:9,color:{argb:"FFFFFFFF"},name:"Arial"};
+        mc.fill={type:"pattern",pattern:"solid",fgColor:{argb:corPrincipal}};
+        mc.alignment={horizontal:"center",vertical:"middle"};
+      } else {
+        mc.value=""; mc.fill={type:"pattern",pattern:"solid",fgColor:{argb:bg}};
+        mc.alignment={horizontal:"center",vertical:"middle"};
+      }
+      mc.border=thinBorder;
+    }
+    ws.getRow(row).height=18; row++;
+  });
+
+  // Linha total por mês
+  const tc2 = ws.getCell(row,1); tc2.value="TOTAL DIAS/MÊS";
+  tc2.font={bold:true,size:9,color:{argb:corPrincipal},name:"Arial"};
+  tc2.fill={type:"pattern",pattern:"solid",fgColor:{argb:corLight}};
+  tc2.alignment={horizontal:"left",vertical:"middle"}; tc2.border=thinBorder;
+  for(let mi=1;mi<=12;mi++){
+    const total = rows.reduce((s,r)=>s+feriasNoMes(normalizeDate(r.inicio),normalizeDate(r.fim),ANO,mi),0);
+    const mc = ws.getCell(row,mi+1);
+    mc.value = total||"";
+    mc.font  = {bold:true,size:9,color:{argb:total>0?corPrincipal:"FFBBBBBB"},name:"Arial"};
+    mc.fill  = {type:"pattern",pattern:"solid",fgColor:{argb:corLight}};
+    mc.alignment={horizontal:"center",vertical:"middle"}; mc.border=thinBorder;
+  }
+  ws.getRow(row).height=18; row+=2;
+
+  // ── BLOCO 3: CALENDÁRIO VISUAL ──
+  ws.mergeCells(`A${row}:N${row}`);
+  bc = ws.getCell(`A${row}`);
+  bc.value = "🗓️  CALENDÁRIO VISUAL — PERÍODOS DE FÉRIAS";
+  bc.font  = {bold:true,size:11,color:{argb:"FFFFFFFF"},name:"Arial"};
+  bc.fill  = {type:"pattern",pattern:"solid",fgColor:{argb:corPrincipal}};
+  bc.alignment = {horizontal:"left",vertical:"middle",indent:1};
+  ws.getRow(row).height = 22;
+  row++;
+
+  hc = ws.getCell(row,1); hc.value="Colaborador";
+  hc.font={bold:true,size:9,color:{argb:"FFFFFFFF"},name:"Arial"};
+  hc.fill={type:"pattern",pattern:"solid",fgColor:{argb:corPrincipal}};
+  hc.alignment={horizontal:"left",vertical:"middle"}; hc.border=thinBorder;
+  MESES_FULL.forEach((m,mi) => {
+    const mc=ws.getCell(row,mi+2);
+    mc.value=m; mc.font={bold:true,size:8,color:{argb:"FFFFFFFF"},name:"Arial"};
+    mc.fill={type:"pattern",pattern:"solid",fgColor:{argb:corPrincipal}};
+    mc.alignment={horizontal:"center",vertical:"middle",wrapText:true}; mc.border=thinBorder;
+  });
+  ws.getRow(row).height=20; row++;
+
+  const COR_MEMBROS=["FF2471A3","FF1E8449","FF7D3C98","FFBA4A00","FF117A65","FF784212"];
+  rows.forEach((r,ri) => {
+    const bg=ri%2===0?"FFFFFFFF":corAlt;
+    const corM=COR_MEMBROS[ri%COR_MEMBROS.length];
+    const ini=normalizeDate(r.inicio);
+    const fim=normalizeDate(r.fim);
+    const nc=ws.getCell(row,1); nc.value=r.nome;
+    nc.font={bold:true,size:9,name:"Arial"}; nc.fill={type:"pattern",pattern:"solid",fgColor:{argb:bg}};
+    nc.alignment={horizontal:"left",vertical:"middle"}; nc.border=thinBorder;
+
+    for(let mi=1;mi<=12;mi++){
+      const dias=feriasNoMes(ini,fim,ANO,mi);
+      const mc=ws.getCell(row,mi+1);
+      if(dias>0){
+        mc.value=`${dias}d`;
+        mc.font={bold:true,size:8,color:{argb:"FFFFFFFF"},name:"Arial"};
+        mc.fill={type:"pattern",pattern:"solid",fgColor:{argb:corM}};
+        mc.alignment={horizontal:"center",vertical:"middle"};
+      } else {
+        mc.value=""; mc.fill={type:"pattern",pattern:"solid",fgColor:{argb:bg}};
+        mc.alignment={horizontal:"center",vertical:"middle"};
+      }
+      mc.border=thinBorder;
+    }
+    ws.getRow(row).height=18; row++;
+  });
+  row++;
+
+  // ── BLOCO 4: DETALHAMENTO ──
+  ws.mergeCells(`A${row}:N${row}`);
+  bc=ws.getCell(`A${row}`);
+  bc.value="📋  DETALHAMENTO POR COLABORADOR";
+  bc.font={bold:true,size:11,color:{argb:"FFFFFFFF"},name:"Arial"};
+  bc.fill={type:"pattern",pattern:"solid",fgColor:{argb:corPrincipal}};
+  bc.alignment={horizontal:"left",vertical:"middle",indent:1};
+  ws.getRow(row).height=22; row++;
+
+  const detH=["Nome","Empresa","Cargo","Saldo","Início","Fim","Dias Corridos","Saldo Rest.","Retorno","Substituto","Nome Sub.","Status"];
+  detH.forEach((h,hi) => {
+    const c=ws.getCell(row,hi+1);
+    c.value=h; c.font={bold:true,size:9,color:{argb:"FFFFFFFF"},name:"Arial"};
+    c.fill={type:"pattern",pattern:"solid",fgColor:{argb:corPrincipal}};
+    c.alignment={horizontal:"center",vertical:"middle",wrapText:true}; c.border=medBorder;
+  });
+  ws.getRow(row).height=20; row++;
+
+  rows.forEach((r,ri) => {
+    const bg=ri%2===0?"FFFFFFFF":corAlt;
+    const ini = normalizeDate(r.inicio);
+    const fim = normalizeDate(r.fim);
+    const rNorm = {...r, inicio:ini, fim:fim};
+    const status=calcStatus(rNorm);
+    const sCor=STATUS_CORES[normStatus(status)]||{bg:"FFFFEB9C",ft:"FF7D6608"};
+    const sol=workdays(ini,fim);
+    const rest=(r.saldo!==""&&sol!=="") ? r.saldo-sol : r.saldo;
+    const iniD=ini?new Date(ini+"T00:00:00"):null;
+    const fimD=fim?new Date(fim+"T00:00:00"):null;
+    const retD=nextWorkdayDate(fim);
+
+    const vals=[r.nome,r.empresa||"",r.cargo,r.saldo,iniD,fimD,sol||"",rest,retD||"",r.subSim,r.subSim==="Sim"?r.subNome:"",status];
+    vals.forEach((v,vi) => {
+      const c=ws.getCell(row,vi+1); c.value=v;
+      const isStatus=vi===11, isSaldo=vi===7;
+      c.fill={type:"pattern",pattern:"solid",
+        fgColor:{argb: isStatus?sCor.bg : (isSaldo&&typeof rest==="number"&&rest<6?"FFFFD7D7":bg)}};
+      c.font={size:9,name:"Arial",bold:isStatus,
+        color:{argb: isStatus?sCor.ft : (isSaldo&&typeof rest==="number"&&rest<6?"FF9C0006":"FF222222")}};
+      c.alignment={horizontal:[0,1,2,10].includes(vi)?"left":"center",vertical:"middle"};
+      c.border=thinBorder;
+      if([4,5,8].includes(vi)&&v) c.numFmt="DD/MM/YYYY";
+    });
+    ws.getRow(row).height=18; row++;
+  });
+}
+
+// ── Exportar Excel: Dados + Dashboard ────────────────────────────────────────
+async function exportExcel(squad) {
+  const rows = data[squad];
+  const isExp       = squad === "expresso";
+  const sheetName   = isExp ? "Expresso-1" : "Guardioes";
+  const corPrincipal = isExp ? "FF1A3C5E" : "FF1E6B3A";
+  const corAlt       = isExp ? "FFEAF2FB" : "FFEAF5EE";
+  const corLight     = isExp ? "FFD0E4F5" : "FFC8ECD8";
+  const hoje = new Date().toLocaleDateString("pt-BR");
+
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "Controle de Férias";
+
+  // Aba 1: dados com fórmulas
+  buildDataSheet(wb, squad, rows, sheetName, corPrincipal, corAlt, hoje);
+
+  // Aba 2: dashboard
+  buildDashboard(wb, squad, rows, sheetName, corPrincipal, corAlt, corLight, hoje);
+
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob   = new Blob([buffer],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  const url    = URL.createObjectURL(blob);
+  const a      = document.createElement("a");
+  a.href=url; a.download=`Ferias_${sheetName}_${hoje.replace(/\//g,"-")}.xlsx`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+document.getElementById("updated-date").textContent =
+  "Atualizado em: " + new Date().toLocaleDateString("pt-BR");
+
+// Carrega dados ao abrir
+loadFromSheets("expresso");
+loadFromSheets("guardioes");
+
+// Auto-refresh silencioso a cada 30 segundos
+// SÓ atualiza se não houver alterações pendentes
+setInterval(() => {
+  const expPendente = document.getElementById("sync-expresso")?.textContent?.includes("não salvas");
+  const guaPendente = document.getElementById("sync-guardioes")?.textContent?.includes("não salvas");
+  if (!expPendente) loadFromSheets("expresso", true);
+  if (!guaPendente) loadFromSheets("guardioes", true);
+}, 30000);
+</script>
+</body>
+</html>
