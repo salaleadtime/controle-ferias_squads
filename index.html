@@ -125,6 +125,115 @@
   .leg-proximas::before { color: #6C3483; }
   .leg-ok::before       { color: #276221; }
   .leg-warn::before     { color: #9C0006; }
+
+  /* BANNER DE ALERTAS (topo) */
+  .alert-banner {
+    display: none;
+    background: linear-gradient(135deg, #fff3cd 0%, #ffe8a6 100%);
+    border-left: 5px solid #E67E22;
+    border-radius: 8px; padding: 12px 18px; margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(230,126,34,.15);
+    align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .alert-banner.show { display: flex; }
+  .alert-banner.critical { background: linear-gradient(135deg, #fde2e2 0%, #fbbcbc 100%); border-left-color: #C0392B; }
+  .alert-banner .alert-icon { font-size: 22px; }
+  .alert-banner .alert-text { flex: 1; font-size: 13px; color: #6b3d00; font-weight: 600; }
+  .alert-banner.critical .alert-text { color: #7a1e13; }
+  .alert-banner .alert-btn {
+    background: #fff; border: 1px solid #E67E22; color: #E67E22;
+    padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 12px;
+  }
+  .alert-banner .alert-btn:hover { background: #E67E22; color: #fff; }
+  .alert-banner.critical .alert-btn { border-color: #C0392B; color: #C0392B; }
+  .alert-banner.critical .alert-btn:hover { background: #C0392B; color: #fff; }
+
+  /* BOTÃO DA ABA ALERTAS */
+  .tab-btn.alertas { background: #fff3cd; color: #7D6608; position: relative; }
+  .tab-btn.alertas.active { background: #E67E22; color: #fff; }
+  .tab-btn .tab-badge {
+    display: inline-block; background: #C0392B; color: #fff;
+    border-radius: 10px; padding: 1px 7px; font-size: 10px;
+    font-weight: 700; margin-left: 6px; min-width: 18px; text-align: center;
+  }
+  .tab-btn.alertas.active .tab-badge { background: #fff; color: #C0392B; }
+
+  /* PANEL ALERTAS */
+  .panel.alertas { background: #fff; }
+  .panel-header.alertas { background: #E67E22; }
+
+  .alert-summary {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px; padding: 16px 20px; border-bottom: 1px solid #eee;
+  }
+  .alert-summary-card {
+    border-radius: 8px; padding: 14px 16px; text-align: center;
+    border: 2px solid transparent;
+  }
+  .alert-summary-card .num { font-size: 28px; font-weight: 800; }
+  .alert-summary-card .lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; margin-top: 4px; }
+  .asc-critical { background: #fde2e2; color: #7a1e13; border-color: #C0392B; }
+  .asc-warning  { background: #fff3cd; color: #6b3d00; border-color: #E67E22; }
+  .asc-info     { background: #D6EAF8; color: #1A5276; border-color: #2980B9; }
+  .asc-ok       { background: #C6EFCE; color: #276221; border-color: #27AE60; }
+
+  .alert-section-title {
+    padding: 14px 20px 8px; font-size: 13px; font-weight: 700; color: #333;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .alert-section-title .count {
+    background: #eee; color: #555; padding: 2px 10px; border-radius: 12px;
+    font-size: 11px; font-weight: 700;
+  }
+
+  .alert-list { padding: 0 20px 16px; }
+  .alert-card {
+    display: flex; align-items: center; gap: 14px; padding: 12px 16px;
+    border-radius: 8px; margin-bottom: 8px; border-left: 4px solid #ccc;
+    background: #fafbfc; transition: all .2s;
+  }
+  .alert-card:hover { transform: translateX(2px); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+  .alert-card.critical { border-left-color: #C0392B; background: #fff5f5; }
+  .alert-card.warning  { border-left-color: #E67E22; background: #fffaf0; }
+  .alert-card.info     { border-left-color: #2980B9; background: #f4faff; }
+  .alert-card.ongoing  { border-left-color: #8E44AD; background: #f9f4fc; }
+
+  .alert-card .ac-icon { font-size: 24px; }
+  .alert-card .ac-body { flex: 1; }
+  .alert-card .ac-name { font-weight: 700; font-size: 14px; color: #222; }
+  .alert-card .ac-meta { font-size: 11px; color: #666; margin-top: 2px; }
+  .alert-card .ac-squad {
+    display: inline-block; padding: 2px 8px; border-radius: 10px;
+    font-size: 10px; font-weight: 700; margin-right: 6px;
+  }
+  .ac-squad.expresso  { background: #d0e4f5; color: #1A3C5E; }
+  .ac-squad.guardioes { background: #c8ecd8; color: #1E6B3A; }
+  .alert-card .ac-days {
+    text-align: right; min-width: 110px;
+  }
+  .alert-card .ac-days .big { font-size: 20px; font-weight: 800; }
+  .alert-card .ac-days .lbl { font-size: 10px; color: #888; text-transform: uppercase; }
+
+  .alert-empty {
+    text-align: center; padding: 40px 20px; color: #888; font-size: 13px;
+  }
+  .alert-empty .icon { font-size: 42px; margin-bottom: 8px; opacity: .5; }
+
+  /* Controles do painel de alertas */
+  .alert-controls {
+    padding: 12px 20px; display: flex; gap: 10px; flex-wrap: wrap;
+    align-items: center; background: #fafbfc; border-bottom: 1px solid #eee;
+  }
+  .alert-controls label { font-size: 12px; color: #555; font-weight: 600; }
+  .alert-controls select {
+    font-size: 12px; padding: 5px 8px;
+  }
+  .btn-email {
+    background: #D35400; color: #fff; padding: 7px 14px;
+    border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 12px;
+    margin-left: auto; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-email:hover { background: #BA4A00; }
 </style>
 </head>
 <body>
@@ -137,9 +246,17 @@
     </div>
   </div>
 
+  <!-- BANNER DE ALERTAS -->
+  <div class="alert-banner" id="alert-banner">
+    <div class="alert-icon" id="alert-banner-icon">⚠️</div>
+    <div class="alert-text" id="alert-banner-text"></div>
+    <button class="alert-btn" onclick="switchTab('alertas')">Ver detalhes →</button>
+  </div>
+
   <div class="tabs">
     <button class="tab-btn expresso active" onclick="switchTab('expresso')">🚀 Expresso-1</button>
     <button class="tab-btn guardioes"       onclick="switchTab('guardioes')">🛡️ Guardiões</button>
+    <button class="tab-btn alertas"         onclick="switchTab('alertas')">🔔 Alertas <span class="tab-badge" id="tab-badge-alertas" style="display:none">0</span></button>
   </div>
 
   <!-- EXPRESSO-1 -->
@@ -161,7 +278,6 @@
       <table id="table-expresso">
         <thead><tr>
           <th class="col-nome">Nome</th>
-          <th>Empresa</th>
           <th>Cargo</th>
           <th>Saldo (dias)</th>
           <th>Início Férias</th>
@@ -204,7 +320,6 @@
       <table id="table-guardioes">
         <thead><tr>
           <th class="col-nome">Nome</th>
-          <th>Empresa</th>
           <th>Cargo</th>
           <th>Saldo (dias)</th>
           <th>Início Férias</th>
@@ -228,6 +343,42 @@
     </div>
   </div>
 
+  <!-- ALERTAS -->
+  <div id="panel-alertas" class="panel alertas">
+    <div class="panel-header alertas">
+      <h2>🔔 Alertas de Férias</h2>
+      <div class="header-actions">
+        <button class="btn" style="background:#fff;color:#E67E22" onclick="renderAlertas()" title="Atualizar alertas">🔄 Atualizar</button>
+      </div>
+    </div>
+
+    <div class="alert-controls">
+      <label>Período de alerta:</label>
+      <select id="alert-window" onchange="renderAlertas()">
+        <option value="7">Próximos 7 dias</option>
+        <option value="15">Próximos 15 dias</option>
+        <option value="30" selected>Próximos 30 dias</option>
+        <option value="60">Próximos 60 dias</option>
+        <option value="90">Próximos 90 dias</option>
+      </select>
+
+      <label style="margin-left:12px">Filtrar por squad:</label>
+      <select id="alert-squad-filter" onchange="renderAlertas()">
+        <option value="all" selected>Todos</option>
+        <option value="expresso">🚀 Expresso-1</option>
+        <option value="guardioes">🛡️ Guardiões</option>
+      </select>
+
+      <button class="btn-email" onclick="enviarEmailAlertas()" title="Abre o cliente de e-mail com o resumo">
+        ✉️ Enviar por e-mail
+      </button>
+    </div>
+
+    <div class="alert-summary" id="alert-summary"></div>
+
+    <div id="alert-content"></div>
+  </div>
+
 </div>
 <script>
 // ── Configuração Google Sheets ───────────────────────────────────────────────
@@ -235,10 +386,10 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwRSo3x7o6RbDH8C1rgXKkC
 
 const initialData = {
   expresso: [
-    { nome:"Felipe Luna", cargo:"Dev", empresa:"GFT", saldo:30, inicio:"", fim:"", subSim:"Não", subNome:"", obs:"", statusManual:"Pendente" }
+    { nome:"Felipe Luna", cargo:"Dev", saldo:30, inicio:"", fim:"", subSim:"Não", subNome:"", obs:"", statusManual:"Pendente" }
   ],
   guardioes: [
-    { nome:"Paulo Sergio", cargo:"Dev", empresa:"GFT", saldo:30, inicio:"", fim:"", subSim:"Não", subNome:"", obs:"", statusManual:"Pendente" }
+    { nome:"Paulo Sergio", cargo:"Dev", saldo:30, inicio:"", fim:"", subSim:"Não", subNome:"", obs:"", statusManual:"Pendente" }
   ]
 };
 let data = JSON.parse(JSON.stringify(initialData));
@@ -286,7 +437,6 @@ async function loadFromSheets(squad, silent=false) {
         .map(r => ({
           nome:         r.nome         || "",
           cargo:        r.cargo        || "",
-          empresa:      r.empresa      || "",
           saldo:        +r.saldo       || 30,
           inicio:       normalizeDate(r.inicio),
           fim:          normalizeDate(r.fim),
@@ -395,12 +545,6 @@ function render(squad) {
         <input type="text" value="${esc(row.cargo)}" placeholder="Cargo"
           onchange="upd('${squad}',${i},'cargo',this.value)">
       </td>
-      <td>
-        <select onchange="upd('${squad}',${i},'empresa',this.value)" style="width:100px">
-          <option value="">Selecione</option>
-          ${["Bradesco","GFT"].map(e=>`<option${e===(row.empresa||"")?" selected":""}>${e}</option>`).join("")}
-        </select>
-      </td>
       <td style="text-align:center">
         <input type="number" min="0" max="90" value="${row.saldo}"
           onchange="upd('${squad}',${i},'saldo',+this.value)">
@@ -446,6 +590,11 @@ function render(squad) {
   });
 
   renderSummary(squad);
+
+  // Atualiza banner de alertas e badge da aba
+  if (typeof renderAlertas === "function") {
+    try { renderAlertas(); } catch(e) {}
+  }
 }
 
 function esc(v) { return (v||"").replace(/"/g,"&quot;"); }
@@ -474,7 +623,7 @@ function upd(squad, i, field, value) {
   setSyncStatus(squad, "⚠️ Alterações não salvas", "#E67E22");
 }
 function addRow(squad) {
-  data[squad].push({ nome:"", cargo:"", empresa:"", saldo:30, inicio:"", fim:"", subSim:"Não", subNome:"", obs:"", statusManual:"Pendente" });
+  data[squad].push({ nome:"", cargo:"", saldo:30, inicio:"", fim:"", subSim:"Não", subNome:"", obs:"", statusManual:"Pendente" });
   render(squad);
   setSyncStatus(squad, "⚠️ Alterações não salvas", "#E67E22");
 }
@@ -489,6 +638,288 @@ function switchTab(squad) {
   document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
   document.getElementById(`panel-${squad}`).classList.add("active");
   document.querySelector(`.tab-btn.${squad}`).classList.add("active");
+  if (squad === "alertas") renderAlertas();
+}
+
+// ── ALERTAS DE FÉRIAS ────────────────────────────────────────────────────────
+// Calcula dias entre hoje e uma data (positivo = futuro, negativo = passado)
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(dateStr + "T00:00:00");
+  if (isNaN(d)) return null;
+  return Math.round((d - today) / 86400000);
+}
+
+// Coleta todas as férias relevantes dos dois squads
+function coletarAlertas() {
+  const janela = parseInt(document.getElementById("alert-window")?.value || "30");
+  const filtroSquad = document.getElementById("alert-squad-filter")?.value || "all";
+
+  const squads = filtroSquad === "all" ? ["expresso","guardioes"] : [filtroSquad];
+  const criticas = [];   // iniciam em até 7 dias
+  const proximas = [];   // 8 a {janela} dias
+  const emFerias = [];   // acontecendo agora
+  const semData  = [];   // sem data preenchida mas aprovadas/pendentes
+
+  squads.forEach(sq => {
+    (data[sq] || []).forEach(r => {
+      if (!r.nome || !r.nome.trim()) return;
+      const ini = normalizeDate(r.inicio);
+      const fim = normalizeDate(r.fim);
+      const item = { ...r, inicio: ini, fim: fim, squad: sq };
+
+      if (!ini || !fim) {
+        if (r.statusManual === "Aprovado" || r.statusManual === "Em análise") {
+          semData.push(item);
+        }
+        return;
+      }
+
+      const diasAteInicio = daysUntil(ini);
+      const diasAteFim    = daysUntil(fim);
+      item.diasAteInicio  = diasAteInicio;
+      item.diasAteFim     = diasAteFim;
+
+      // Em férias agora
+      if (diasAteInicio <= 0 && diasAteFim >= 0) {
+        emFerias.push(item);
+      }
+      // Férias futuras dentro da janela
+      else if (diasAteInicio > 0 && diasAteInicio <= janela) {
+        if (diasAteInicio <= 7) criticas.push(item);
+        else proximas.push(item);
+      }
+    });
+  });
+
+  // Ordena por data de início
+  const sortFn = (a,b) => (a.diasAteInicio ?? 999) - (b.diasAteInicio ?? 999);
+  criticas.sort(sortFn);
+  proximas.sort(sortFn);
+  emFerias.sort((a,b) => (a.diasAteFim ?? 999) - (b.diasAteFim ?? 999));
+
+  return { criticas, proximas, emFerias, semData };
+}
+
+// Formata data YYYY-MM-DD para DD/MM/YYYY
+function fmtData(s) {
+  if (!s) return "—";
+  const [y,m,d] = s.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function squadLabel(sq) {
+  return sq === "expresso" ? "🚀 Expresso-1" : "🛡️ Guardiões";
+}
+
+// Renderiza um card de alerta
+function renderAlertCard(item, tipo) {
+  const icones = { critical: "🚨", warning: "⚠️", info: "📅", ongoing: "🏖️" };
+  const icon = icones[tipo] || "📅";
+
+  let diasTexto, diasLabel;
+  if (tipo === "ongoing") {
+    const restantes = item.diasAteFim;
+    diasTexto = restantes === 0 ? "Último dia" : `${restantes}`;
+    diasLabel = restantes === 0 ? "" : "dias restantes";
+  } else {
+    diasTexto = item.diasAteInicio === 0 ? "Hoje" :
+                item.diasAteInicio === 1 ? "Amanhã" : `${item.diasAteInicio}`;
+    diasLabel = item.diasAteInicio > 1 ? "dias para iniciar" : "";
+  }
+
+  const periodo = `${fmtData(item.inicio)} → ${fmtData(item.fim)}`;
+  const cargo = item.cargo ? ` · ${esc(item.cargo)}` : "";
+  const sub = item.subSim === "Sim" && item.subNome
+    ? `<br>Substituto: <strong>${esc(item.subNome)}</strong>` : "";
+
+  return `
+    <div class="alert-card ${tipo}">
+      <div class="ac-icon">${icon}</div>
+      <div class="ac-body">
+        <div class="ac-name">${esc(item.nome)}</div>
+        <div class="ac-meta">
+          <span class="ac-squad ${item.squad}">${squadLabel(item.squad)}</span>
+          ${periodo}${cargo}${sub}
+        </div>
+      </div>
+      <div class="ac-days">
+        <div class="big">${diasTexto}</div>
+        <div class="lbl">${diasLabel}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderAlertas() {
+  const { criticas, proximas, emFerias, semData } = coletarAlertas();
+
+  // Resumo
+  const totalAlertas = criticas.length + proximas.length;
+  document.getElementById("alert-summary").innerHTML = `
+    <div class="alert-summary-card asc-critical">
+      <div class="num">${criticas.length}</div>
+      <div class="lbl">🚨 Urgentes (≤ 7 dias)</div>
+    </div>
+    <div class="alert-summary-card asc-warning">
+      <div class="num">${proximas.length}</div>
+      <div class="lbl">⚠️ Próximas</div>
+    </div>
+    <div class="alert-summary-card asc-info">
+      <div class="num">${emFerias.length}</div>
+      <div class="lbl">🏖️ Em férias agora</div>
+    </div>
+    <div class="alert-summary-card asc-ok">
+      <div class="num">${semData.length}</div>
+      <div class="lbl">📝 Sem data definida</div>
+    </div>
+  `;
+
+  // Lista
+  let html = "";
+
+  if (emFerias.length) {
+    html += `<div class="alert-section-title">🏖️ Em férias agora <span class="count">${emFerias.length}</span></div>`;
+    html += `<div class="alert-list">${emFerias.map(i => renderAlertCard(i, "ongoing")).join("")}</div>`;
+  }
+
+  if (criticas.length) {
+    html += `<div class="alert-section-title">🚨 Iniciando em até 7 dias <span class="count">${criticas.length}</span></div>`;
+    html += `<div class="alert-list">${criticas.map(i => renderAlertCard(i, "critical")).join("")}</div>`;
+  }
+
+  if (proximas.length) {
+    html += `<div class="alert-section-title">⚠️ Próximas férias <span class="count">${proximas.length}</span></div>`;
+    html += `<div class="alert-list">${proximas.map(i => renderAlertCard(i, "warning")).join("")}</div>`;
+  }
+
+  if (semData.length) {
+    html += `<div class="alert-section-title">📝 Aprovadas/Em análise sem data <span class="count">${semData.length}</span></div>`;
+    html += `<div class="alert-list">${semData.map(i => `
+      <div class="alert-card info">
+        <div class="ac-icon">📝</div>
+        <div class="ac-body">
+          <div class="ac-name">${esc(i.nome)}</div>
+          <div class="ac-meta">
+            <span class="ac-squad ${i.squad}">${squadLabel(i.squad)}</span>
+            Status: <strong>${esc(i.statusManual)}</strong> — datas ainda não preenchidas
+          </div>
+        </div>
+        <div class="ac-days"><div class="big">—</div></div>
+      </div>`).join("")}</div>`;
+  }
+
+  if (!emFerias.length && !criticas.length && !proximas.length && !semData.length) {
+    html = `<div class="alert-empty">
+      <div class="icon">✅</div>
+      <div>Nenhum alerta no período selecionado.</div>
+    </div>`;
+  }
+
+  document.getElementById("alert-content").innerHTML = html;
+
+  // Atualiza banner e badge da aba
+  atualizarBannerAlertas(criticas, emFerias, totalAlertas);
+}
+
+function atualizarBannerAlertas(criticas, emFerias, total) {
+  const banner = document.getElementById("alert-banner");
+  const text   = document.getElementById("alert-banner-text");
+  const icon   = document.getElementById("alert-banner-icon");
+  const badge  = document.getElementById("tab-badge-alertas");
+
+  // Badge na aba
+  const totalBadge = criticas.length + emFerias.length;
+  if (totalBadge > 0) {
+    badge.style.display = "inline-block";
+    badge.textContent = totalBadge;
+  } else {
+    badge.style.display = "none";
+  }
+
+  // Banner
+  banner.classList.remove("show", "critical");
+  if (criticas.length > 0) {
+    banner.classList.add("show", "critical");
+    icon.textContent = "🚨";
+    const nomes = criticas.slice(0,3).map(c => c.nome.split(" ")[0]).join(", ");
+    const extra = criticas.length > 3 ? ` e mais ${criticas.length-3}` : "";
+    text.innerHTML = `<strong>${criticas.length} ${criticas.length===1?"pessoa inicia":"pessoas iniciam"} férias em até 7 dias:</strong> ${nomes}${extra}`;
+  } else if (emFerias.length > 0) {
+    banner.classList.add("show");
+    icon.textContent = "🏖️";
+    const nomes = emFerias.slice(0,3).map(c => c.nome.split(" ")[0]).join(", ");
+    const extra = emFerias.length > 3 ? ` e mais ${emFerias.length-3}` : "";
+    text.innerHTML = `<strong>${emFerias.length} ${emFerias.length===1?"pessoa está":"pessoas estão"} em férias agora:</strong> ${nomes}${extra}`;
+  } else if (total > 0) {
+    banner.classList.add("show");
+    icon.textContent = "📅";
+    text.innerHTML = `<strong>${total}</strong> ${total===1?"férias próxima":"férias próximas"} no período selecionado.`;
+  }
+}
+
+// ── ENVIO POR E-MAIL ─────────────────────────────────────────────────────────
+function enviarEmailAlertas() {
+  const DESTINATARIO = "Amanda.Lima@gft.com";
+  const { criticas, proximas, emFerias, semData } = coletarAlertas();
+  const janela = document.getElementById("alert-window").value;
+  const hoje   = new Date().toLocaleDateString("pt-BR");
+
+  if (!criticas.length && !proximas.length && !emFerias.length && !semData.length) {
+    alert("Não há alertas para enviar no período selecionado.");
+    return;
+  }
+
+  const assunto = `Alertas de Férias - Squads - ${hoje}`;
+
+  const linhas = [];
+  linhas.push(`Relatorio de alertas de ferias gerado em ${hoje}`);
+  linhas.push(`Janela de analise: proximos ${janela} dias`);
+  linhas.push("");
+  linhas.push("=".repeat(50));
+
+  const formatItem = (i, tipo) => {
+    const periodo = `${fmtData(i.inicio)} ate ${fmtData(i.fim)}`;
+    let info = "";
+    if (tipo === "ongoing") info = `em ferias - retorna em ${i.diasAteFim} dia(s)`;
+    else if (i.diasAteInicio === 0) info = "inicia HOJE";
+    else if (i.diasAteInicio === 1) info = "inicia AMANHA";
+    else info = `inicia em ${i.diasAteInicio} dia(s)`;
+    const sub = (i.subSim === "Sim" && i.subNome) ? ` | Substituto: ${i.subNome}` : "";
+    return `- ${i.nome} (${squadLabel(i.squad).replace(/[^\w\s-]/g,"").trim()}) - ${periodo} - ${info}${sub}`;
+  };
+
+  if (emFerias.length) {
+    linhas.push("");
+    linhas.push(`EM FERIAS AGORA (${emFerias.length})`);
+    emFerias.forEach(i => linhas.push(formatItem(i, "ongoing")));
+  }
+  if (criticas.length) {
+    linhas.push("");
+    linhas.push(`URGENTES - INICIAM EM ATE 7 DIAS (${criticas.length})`);
+    criticas.forEach(i => linhas.push(formatItem(i, "critical")));
+  }
+  if (proximas.length) {
+    linhas.push("");
+    linhas.push(`PROXIMAS FERIAS (${proximas.length})`);
+    proximas.forEach(i => linhas.push(formatItem(i, "warning")));
+  }
+  if (semData.length) {
+    linhas.push("");
+    linhas.push(`APROVADAS/EM ANALISE SEM DATA DEFINIDA (${semData.length})`);
+    semData.forEach(i => {
+      linhas.push(`- ${i.nome} (${squadLabel(i.squad).replace(/[^\w\s-]/g,"").trim()}) - Status: ${i.statusManual}`);
+    });
+  }
+
+  linhas.push("");
+  linhas.push("=".repeat(50));
+  linhas.push("Mensagem gerada automaticamente pelo Controle de Ferias - Squads");
+
+  const corpo = linhas.join("\n");
+  const url = `mailto:${DESTINATARIO}?subject=${encodeURIComponent(assunto)}&body=${encodeURIComponent(corpo)}`;
+  window.location.href = url;
 }
 
 // ── Helpers compartilhados de estilo ────────────────────────────────────────
@@ -537,8 +968,8 @@ function buildDataSheet(wb, squad, rows, sheetName, corPrincipal, corAlt, hoje) 
   tc.alignment = {horizontal:"center", vertical:"middle"};
   ws.getRow(1).height = 30;
 
-  const hRow = ws.addRow(["Nome","Empresa","Cargo","Saldo Total (dias)","Inicio Ferias","Fim Ferias",
-    "Dias Corridos","Saldo Restante","Previsao Retorno","Substituto","Nome Substituto","Status","Observacoes"]);
+  const hRow = ws.addRow(["Nome","Cargo","Saldo Total (dias)","Inicio Ferias","Fim Ferias",
+    "Dias Solicitados","Saldo Restante","Previsao Retorno","Substituto","Nome Substituto","Status","Observacoes"]);
   hRow.height = 24;
   hRow.eachCell(cell => {
     cell.font = {bold:true,size:10,color:{argb:"FFFFFFFF"},name:"Arial"};
@@ -559,9 +990,9 @@ function buildDataSheet(wb, squad, rows, sheetName, corPrincipal, corAlt, hoje) 
     const retD   = nextWorkdayDate(r.fim);
 
     const dRow = ws.addRow([
-      r.nome, r.empresa||"", r.cargo, r.saldo, iniD, fimD,
-      iniD&&fimD ? {formula:`F${exRow}-E${exRow}+1`, result:sol||0} : "",
-      iniD&&fimD ? {formula:`D${exRow}-G${exRow}`,   result:rest||""} : r.saldo,
+      r.nome, r.cargo, r.saldo, iniD, fimD,
+      iniD&&fimD ? {formula:`E${exRow}-D${exRow}+1`, result:sol||0} : "",
+      iniD&&fimD ? {formula:`C${exRow}-F${exRow}`,   result:rest||""} : r.saldo,
       fimD ? retD : "",
       r.subSim, r.subSim==="Sim" ? r.subNome : "", status, r.obs
     ]);
@@ -569,14 +1000,14 @@ function buildDataSheet(wb, squad, rows, sheetName, corPrincipal, corAlt, hoje) 
 
     dRow.eachCell({includeEmpty:true}, (cell, cn) => {
       let bg=bgRow, ft="FF222222", bold=false;
-      if (cn===12) { bg=sCor.bg; ft=sCor.ft; bold=true; }
-      if (cn===8&&rest!=="") { bg=rest<6?"FFFFD7D7":bgRow; ft=rest<6?"FF9C0006":"FF276221"; bold=true; }
-      if (cn===7&&sol!=="") bold=true;
+      if (cn===11) { bg=sCor.bg; ft=sCor.ft; bold=true; }
+      if (cn===7&&rest!=="") { bg=rest<6?"FFFFD7D7":bgRow; ft=rest<6?"FF9C0006":"FF276221"; bold=true; }
+      if (cn===6&&sol!=="") bold=true;
       cell.font = {size:10,name:"Arial",bold,color:{argb:ft}};
       cell.fill = {type:"pattern",pattern:"solid",fgColor:{argb:bg}};
-      cell.alignment = {horizontal:[1,2,3,11,13].includes(cn)?"left":"center",vertical:"middle"};
+      cell.alignment = {horizontal:[1,2,10,12].includes(cn)?"left":"center",vertical:"middle"};
       cell.border = thinBorder;
-      if ([5,6,9].includes(cn)) cell.numFmt = "DD/MM/YYYY";
+      if ([4,5,8].includes(cn)) cell.numFmt = "DD/MM/YYYY";
     });
   });
   ws.freezePanes = "A3";
@@ -776,7 +1207,7 @@ function buildDashboard(wb, squad, rows, sheetName, corPrincipal, corAlt, corLig
   bc.alignment={horizontal:"left",vertical:"middle",indent:1};
   ws.getRow(row).height=22; row++;
 
-  const detH=["Nome","Empresa","Cargo","Saldo","Início","Fim","Dias Corridos","Saldo Rest.","Retorno","Substituto","Nome Sub.","Status"];
+  const detH=["Nome","Cargo","Saldo","Início","Fim","Dias Corridos","Saldo Rest.","Retorno","Substituto","Nome Sub.","Status"];
   detH.forEach((h,hi) => {
     const c=ws.getCell(row,hi+1);
     c.value=h; c.font={bold:true,size:9,color:{argb:"FFFFFFFF"},name:"Arial"};
@@ -798,17 +1229,17 @@ function buildDashboard(wb, squad, rows, sheetName, corPrincipal, corAlt, corLig
     const fimD=fim?new Date(fim+"T00:00:00"):null;
     const retD=nextWorkdayDate(fim);
 
-    const vals=[r.nome,r.empresa||"",r.cargo,r.saldo,iniD,fimD,sol||"",rest,retD||"",r.subSim,r.subSim==="Sim"?r.subNome:"",status];
+    const vals=[r.nome,r.cargo,r.saldo,iniD,fimD,sol||"",rest,retD||"",r.subSim,r.subSim==="Sim"?r.subNome:"",status];
     vals.forEach((v,vi) => {
       const c=ws.getCell(row,vi+1); c.value=v;
-      const isStatus=vi===11, isSaldo=vi===7;
+      const isStatus=vi===10, isSaldo=vi===6;
       c.fill={type:"pattern",pattern:"solid",
         fgColor:{argb: isStatus?sCor.bg : (isSaldo&&typeof rest==="number"&&rest<6?"FFFFD7D7":bg)}};
       c.font={size:9,name:"Arial",bold:isStatus,
         color:{argb: isStatus?sCor.ft : (isSaldo&&typeof rest==="number"&&rest<6?"FF9C0006":"FF222222")}};
-      c.alignment={horizontal:[0,1,2,10].includes(vi)?"left":"center",vertical:"middle"};
+      c.alignment={horizontal:[0,1,9].includes(vi)?"left":"center",vertical:"middle"};
       c.border=thinBorder;
-      if([4,5,8].includes(vi)&&v) c.numFmt="DD/MM/YYYY";
+      if([3,4,7].includes(vi)&&v) c.numFmt="DD/MM/YYYY";
     });
     ws.getRow(row).height=18; row++;
   });
